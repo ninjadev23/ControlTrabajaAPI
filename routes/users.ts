@@ -94,7 +94,7 @@ router.get(
     const user = req.user as any;
 
     if (!user) {
-        return res.redirect("http://localhost:4321/login?error=auth_failed");
+        return res.redirect("https://control-trabaja.vercel.app/login?error=auth_failed");
     }
 
     // Generar Token JWT
@@ -105,7 +105,7 @@ router.get(
     );
 
     res.cookie("access_token", token, cookiesConfig)
-       .redirect("http://localhost:4321/dashboard");
+       .redirect("https://control-trabaja.vercel.app/dashboard");
   }
 );
 

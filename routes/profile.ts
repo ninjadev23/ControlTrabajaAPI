@@ -43,7 +43,7 @@ router.put("/update-profile", verifyToken as RequestHandler, upload.single("foto
 
     if (req.file) {
       console.log("Archivo recibido:", req.file.filename);
-      updateData.profilePhoto = `http://localhost:3000/uploads/${req.file.filename}`;
+      updateData.profilePhoto = `https://controltrabajaapi-production.up.railway.app/uploads/${req.file.filename}`;
     }
 
     if (password && password.trim() !== "") {
