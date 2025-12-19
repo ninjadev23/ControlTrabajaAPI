@@ -1,4 +1,4 @@
-import passport from 'passport';
+import passport from "passport";
 import { Router } from "express";
 import { UserModel } from "../models/Users";
 import { userSchema } from "../types";
@@ -7,14 +7,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { handleError } from "../utils";
 
-
 const router = Router();
 const isProduction = process.env.NODE_ENV === "production";
 
 const cookiesConfig = {
   httpOnly: true,
   maxAge: 1000 * 60 * 60 * 24 * 20, // 20 días
-  secure: isProduction, 
+  secure: isProduction,
   sameSite: isProduction ? ("none" as const) : ("lax" as const),
   path: "/",
 };
@@ -42,7 +41,9 @@ router.post("/login", async (req, res) => {
     const userData = await UserModel.findOne({ email: userValided.email });
     if (!userData) throw new Error("User not found, please register first");
     if (!userData.password && userData.googleId) {
-      throw new Error("Este correo está registrado con Google. Inicia sesión con Google.");
+      throw new Error(
+        "Este correo está registrado con Google. Inicia sesión con Google."
+      );
     }
     if (await bcrypt.compare(userValided.password, userData.password)) {
       const token = jwt.sign(
@@ -54,13 +55,12 @@ router.post("/login", async (req, res) => {
           expiresIn: "20d", //fecha de expiracion del token 20 dias
         }
       );
-      res
-        .cookie("access_token", token, {
-            ...cookiesConfig,
-        })
-        .json({
-          message: "User Authenticated Correctly",
-        });
+
+      res.cookie("access_token", token, cookiesConfig).json({
+        message: "User Authenticated Correctly",
+        token: token,
+        user: userData,
+      });
     } else {
       throw new Error("Incorrect password");
     }
@@ -84,17 +84,25 @@ router.delete("/logout", (_req, res) => {
 //oauth con google
 router.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"], session: false })
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
 );
 
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login", session: false }),
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: false,
+  }),
   (req, res) => {
     const user = req.user as any;
 
     if (!user) {
-        return res.redirect("https://control-trabaja.vercel.app/login?error=auth_failed");
+      return res.redirect(
+        "https://control-trabaja-web.vercel.app/login?error=auth_failed"
+      );
     }
 
     // Generar Token JWT
@@ -104,8 +112,9 @@ router.get(
       { expiresIn: "20d" }
     );
 
-    res.cookie("access_token", token, cookiesConfig)
-       .redirect("https://control-trabaja.vercel.app/dashboard");
+    res
+      .cookie("access_token", token, cookiesConfig)
+      .redirect(`https://control-trabaja-web.vercel.app/auth-callback?token=${token}`);
   }
 );
 
