@@ -14,13 +14,17 @@ import "./configDB"
 import './config/passport';
 
 const app = express()
+
+app.set("trust proxy", 1);
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(cookieParser())
 
 app.use(cors({
-  origin: ["http://localhost:4321", "https://controltrabaja-production.up.railway.app", "https://control-trabaja.vercel.app"],
-  credentials: true
+  origin: "https://control-trabaja.vercel.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
 }));
 
 const uploadDir = path.join(process.cwd(), "uploads");

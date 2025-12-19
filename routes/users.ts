@@ -9,15 +9,15 @@ import { handleError } from "../utils";
 
 
 const router = Router();
+const isProduction = process.env.NODE_ENV === "production";
 
 const cookiesConfig = {
-  //Configuracion general de las cookies
-  httpOnly: true,//hace que la cookie solo pueda ser leida por el sevidor y no por javascript
+  httpOnly: true,
   maxAge: 1000 * 60 * 60 * 24 * 20, // 20 días
-  secure: process.env.NODE_ENV_FOR_SECURE === "production",
-  sameSite: process.env.NODE_ENV === "production" ? ("none" as const) : ("lax" as const),
+  secure: isProduction, 
+  sameSite: isProduction ? ("none" as const) : ("lax" as const),
+  path: "/",
 };
-
 router.post("/signup", async (req, res) => {
   try {
     // Validando entrada
